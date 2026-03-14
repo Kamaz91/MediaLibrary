@@ -2,6 +2,12 @@ import axios from 'axios';
 import type { FileItem, UploadTask } from '@/types';
 import { useUserStore } from '@/stores/userStore';
 
+let _cdnUrl = '';
+let _serveFilesLocally = false;
+export function setCdnUrl(url: string) { _cdnUrl = url.replace(/\/$/, ''); }
+export function getCdnUrl() { return _cdnUrl; }
+export function setServeFilesLocally(val: boolean) { _serveFilesLocally = val; }
+
 function getHeaders() {
   const userStore = useUserStore();
   return { 'x-password': userStore.password };
@@ -39,12 +45,18 @@ export async function getFileContent(filePath: string): Promise<{ content: strin
 }
 
 export function getRawUrl(filePath: string): string {
+  if (!_serveFilesLocally && _cdnUrl) return `${_cdnUrl}${filePath}`;
   return `/api/files/raw?path=${encodeURIComponent(filePath)}`;
 }
 
 export async function fetchAuthBlob(filePath: string): Promise<string> {
+  if (!_serveFilesLocally && _cdnUrl) {
+    // CDN is public – return direct URL, no auth headers needed
+    return `${_cdnUrl}${filePath}`;
+  }
+  // Serve through API with auth (serveFilesLocally mode or no CDN configured)
   const userStore = useUserStore();
-  const res = await fetch(getRawUrl(filePath), {
+  const res = await fetch(`/api/files/raw?path=${encodeURIComponent(filePath)}`, {
     headers: { 'x-password': userStore.password },
   });
   if (!res.ok) throw new Error('Fetch failed');

@@ -29,6 +29,14 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
+// Public endpoint – exposes non-sensitive config to the frontend
+app.get('/api/info', (_req, res) => {
+  res.json({
+    cdnUrl: config.serveFilesLocally ? '' : (config.cdnUrl ?? ''),
+    serveFilesLocally: config.serveFilesLocally ?? false,
+  });
+});
+
 app.listen(config.port, () => {
   console.log(`Galeria API running on port ${config.port}`);
   console.log(`Root path: ${config.rootPath}`);
