@@ -1,0 +1,7 @@
+{
+  "password": "changeme",
+  "rootPath": "/var/www/cdn",
+  "serverUrl": "http://localhost",
+  "port": 3001,
+  "proxyUrl": ""
+}

@@ -1,0 +1,15 @@
+{
+  "name": "galeria-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:frontend": "npm run dev --workspace=apps/frontend",
+    "build:api": "npm run build --workspace=apps/api",
+    "build:frontend": "npm run build --workspace=apps/frontend",
+    "build": "npm run build:api && npm run build:frontend",
+    "deploy:frontend": "node scripts/deploy-frontend.js"
+  }
+}
