@@ -82,6 +82,7 @@ router.post('/', (req: Request, res: Response): void => {
     activeUploads.delete(uploadId);
 
     if (err) {
+      console.error(`[upload] Error for uploadId=${uploadId}:`, err.message);
       cleanupTracked(uploadId);
       if (!res.headersSent) res.status(500).json({ error: err.message });
       return;
@@ -89,6 +90,7 @@ router.post('/', (req: Request, res: Response): void => {
 
     trackedFiles.delete(uploadId);
     const files = req.files as Express.Multer.File[];
+    console.log(`[upload] Done uploadId=${uploadId}, files:`, files.map(f => f.destination + '/' + f.filename));
     res.json({
       success: true,
       uploaded: files.map(f => ({ name: f.originalname, size: f.size })),

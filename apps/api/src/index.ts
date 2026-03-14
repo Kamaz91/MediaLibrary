@@ -13,6 +13,12 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Request logger
+app.use((req: Request, _res: Response, next: NextFunction) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  next();
+});
+
 app.post('/api/auth/login', (req, res) => {
   const password = req.headers['x-password'] as string | undefined;
   if (!password || password !== config.password) {
@@ -38,14 +44,18 @@ app.get('/api/info', (_req, res) => {
 });
 
 app.listen(config.port, () => {
-  console.log(`MediaLibrary API running on port ${config.port}`);
-  console.log(`Root path: ${config.rootPath}`);
+  console.log(`[${new Date().toISOString()}] MediaLibrary API running on port ${config.port}`);
+  console.log(`[${new Date().toISOString()}] Root path: ${config.rootPath}`);
+  console.log(`[${new Date().toISOString()}] CDN URL: ${config.cdnUrl || '(none)'}`);
+  console.log(`[${new Date().toISOString()}] serveFilesLocally: ${config.serveFilesLocally ?? false}`);
 });
 
 // Global error handler – always respond with JSON, never HTML
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   const message = err instanceof Error ? err.message : String(err);
-  console.error('[API error]', message);
+  const stack = err instanceof Error ? err.stack : undefined;
+  console.error(`[${new Date().toISOString()}] [API error]`, message);
+  if (stack) console.error(stack);
   if (!res.headersSent) {
     res.status(500).json({ error: message });
   }

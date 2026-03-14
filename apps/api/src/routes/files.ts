@@ -80,9 +80,11 @@ router.post('/folder', (req: Request, res: Response): void => {
   }
   try {
     fs.mkdirSync(fullPath, { recursive: true });
+    console.log(`[files] Created folder: ${fullPath}`);
     res.json({ success: true });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
+    console.error(`[files] mkdirSync failed: ${msg}`);
     res.status(500).json({ error: `Failed to create folder: ${msg}` });
   }
 });
