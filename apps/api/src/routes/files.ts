@@ -4,8 +4,9 @@ import fs from 'fs';
 import http from 'http';
 import https from 'https';
 import { config } from '../config';
-// exifr is a pure-ESM package; use dynamic import
-const exifrPromise = import('exifr');
+
+// Bypass TypeScript's import()-to-require() transform so ESM-only exifr works in CJS
+const esmImport = new Function('id', 'return import(id)') as (id: string) => Promise<{ default: { parse: (src: string, opts: object) => Promise<Record<string, unknown> | null> } }>;
 
 const router = Router();
 
@@ -55,6 +56,10 @@ router.get('/', (req: Request, res: Response): void => {
 });
 
 router.post('/folder', (req: Request, res: Response): void => {
+  if (!req.body || typeof req.body !== 'object') {
+    res.status(400).json({ error: 'Request body is required' });
+    return;
+  }
   const { path: reqPath, name } = req.body as { path: string; name: string };
   if (!reqPath || !name) {
     res.status(400).json({ error: 'path and name are required' });
@@ -73,8 +78,13 @@ router.post('/folder', (req: Request, res: Response): void => {
     res.status(409).json({ error: 'Already exists' });
     return;
   }
-  fs.mkdirSync(fullPath, { recursive: true });
-  res.json({ success: true });
+  try {
+    fs.mkdirSync(fullPath, { recursive: true });
+    res.json({ success: true });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    res.status(500).json({ error: `Failed to create folder: ${msg}` });
+  }
 });
 
 router.delete('/', (req: Request, res: Response): void => {
@@ -92,16 +102,25 @@ router.delete('/', (req: Request, res: Response): void => {
     res.status(404).json({ error: 'Not found' });
     return;
   }
-  const stat = fs.statSync(fullPath);
-  if (stat.isDirectory()) {
-    fs.rmSync(fullPath, { recursive: true });
-  } else {
-    fs.unlinkSync(fullPath);
+  try {
+    const stat = fs.statSync(fullPath);
+    if (stat.isDirectory()) {
+      fs.rmSync(fullPath, { recursive: true });
+    } else {
+      fs.unlinkSync(fullPath);
+    }
+    res.json({ success: true });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    res.status(500).json({ error: `Failed to delete: ${msg}` });
   }
-  res.json({ success: true });
 });
 
 router.patch('/rename', (req: Request, res: Response): void => {
+  if (!req.body || typeof req.body !== 'object') {
+    res.status(400).json({ error: 'Request body is required' });
+    return;
+  }
   const { path: reqPath, newName } = req.body as { path: string; newName: string };
   if (!reqPath || !newName) {
     res.status(400).json({ error: 'path and newName are required' });
@@ -130,8 +149,13 @@ router.patch('/rename', (req: Request, res: Response): void => {
     res.status(409).json({ error: 'Already exists' });
     return;
   }
-  fs.renameSync(fullPath, newFullPath);
-  res.json({ success: true });
+  try {
+    fs.renameSync(fullPath, newFullPath);
+    res.json({ success: true });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    res.status(500).json({ error: `Failed to rename: ${msg}` });
+  }
 });
 
 router.get('/content', (req: Request, res: Response): void => {
@@ -208,7 +232,7 @@ router.get('/exif', async (req: Request, res: Response): Promise<void> => {
     return;
   }
   try {
-    const { default: exifr } = await exifrPromise;
+    const { default: exifr } = await esmImport('exifr');
     const data = await exifr.parse(fullPath, { tiff: true, exif: true, gps: true, iptc: true });
     res.json(data ?? {});
   } catch {

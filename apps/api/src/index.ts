@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { config } from './config';
 import { authMiddleware } from './middleware/auth';
@@ -16,7 +16,7 @@ app.use(express.json());
 app.post('/api/auth/login', (req, res) => {
   const password = req.headers['x-password'] as string | undefined;
   if (!password || password !== config.password) {
-    res.status(401).json({ error: 'Nieprawidlowe haslo' });
+    res.status(401).json({ error: 'Unauthorized' });
     return;
   }
   res.json({ ok: true });
@@ -40,4 +40,13 @@ app.get('/api/info', (_req, res) => {
 app.listen(config.port, () => {
   console.log(`MediaLibrary API running on port ${config.port}`);
   console.log(`Root path: ${config.rootPath}`);
+});
+
+// Global error handler – always respond with JSON, never HTML
+app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  const message = err instanceof Error ? err.message : String(err);
+  console.error('[API error]', message);
+  if (!res.headersSent) {
+    res.status(500).json({ error: message });
+  }
 });
