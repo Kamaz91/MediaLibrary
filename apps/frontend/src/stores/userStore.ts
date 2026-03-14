@@ -21,4 +21,4 @@ export const useUserStore = defineStore('user', () => {
   }
 
   return { password, isAuthenticated, setPassword, setAuthenticated, logout };
-}, { persist: false });
+});
