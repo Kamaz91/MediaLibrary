@@ -69,9 +69,8 @@ router.post('/', (req: Request, res: Response): void => {
   trackedFiles.set(uploadId, []);
 
   req.on('close', () => {
-    const entry = activeUploads.get(uploadId);
-    if (entry && !res.writableEnded) {
-      // closed before response was sent = aborted by client
+    if (!req.complete) {
+      // req.complete is false only when client disconnected before sending all data
       cleanupTracked(uploadId);
     }
     activeUploads.delete(uploadId);
