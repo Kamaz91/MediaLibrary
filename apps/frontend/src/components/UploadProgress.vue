@@ -21,7 +21,7 @@
               v-if="task.status === 'uploading'"
               @click="emit('cancel', task.id)"
               class="cancel-btn"
-              title="Anuluj"
+              title="Cancel"
             >&#x2715;</button>
           </div>
         </div>
@@ -38,10 +38,10 @@ const emit = defineEmits<{ (e: 'cancel', id: string): void }>();
 
 function statusLabel(status: UploadTask['status']) {
   const labels: Record<UploadTask['status'], string> = {
-    uploading: 'Wysylanie...',
-    done: 'Zakonczone',
-    error: 'Blad',
-    cancelled: 'Anulowano',
+    uploading: 'Uploading...',
+    done: 'Done',
+    error: 'Error',
+    cancelled: 'Cancelled',
   };
   return labels[status];
 }

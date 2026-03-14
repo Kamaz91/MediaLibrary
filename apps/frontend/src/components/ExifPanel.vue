@@ -6,9 +6,9 @@
         <button @click="emit('close')" class="close-btn">&#x2715;</button>
       </div>
       <div class="exif-body">
-        <div v-if="loading" class="loading">Ladowanie EXIF...</div>
+        <div v-if="loading" class="loading">Loading EXIF...</div>
         <div v-else-if="error" class="error">{{ error }}</div>
-        <div v-else-if="!exifData || Object.keys(exifData).length === 0" class="empty">Brak danych EXIF</div>
+        <div v-else-if="!exifData || Object.keys(exifData).length === 0" class="empty">No EXIF data</div>
         <table v-else class="exif-table">
           <tbody>
             <tr v-for="(value, key) in flatExif" :key="key">
@@ -50,7 +50,7 @@ const flatExif = computed(() => {
 });
 
 function formatValue(v: unknown): string {
-  if (v instanceof Date) return v.toLocaleString('pl-PL');
+  if (v instanceof Date) return v.toLocaleString();
   if (Array.isArray(v)) return v.join(', ');
   if (v === null || v === undefined) return '--';
   return String(v);
@@ -66,7 +66,7 @@ onMounted(async () => {
     const data = await exifr.parse(blob, { tiff: true, exif: true, gps: true, iptc: true });
     exifData.value = data || {};
   } catch (e) {
-    error.value = 'Nie mozna odczytac danych EXIF';
+    error.value = 'Failed to read EXIF data';
   } finally {
     loading.value = false;
   }

@@ -2,20 +2,20 @@
   <div class="login-wrapper">
     <div class="login-card">
       <h1 class="login-title">MediaLibrary</h1>
-      <p class="login-subtitle">Wprowadz haslo aby kontynuowac</p>
+      <p class="login-subtitle">Enter password to continue</p>
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="input-group">
           <input
             v-model="password"
             type="password"
-            placeholder="Haslo..."
+            placeholder="Password..."
             class="login-input"
             autofocus
           />
         </div>
         <p v-if="error" class="error-msg">{{ error }}</p>
         <button type="submit" class="login-btn" :disabled="loading">
-          {{ loading ? 'Sprawdzam...' : 'Zaloguj sie' }}
+          {{ loading ? 'Checking...' : 'Sign in' }}
         </button>
       </form>
     </div>
@@ -47,9 +47,9 @@ async function handleLogin() {
     router.push('/');
   } catch (e: unknown) {
     if (axios.isAxiosError(e) && e.response?.status === 401) {
-      error.value = 'Nieprawidlowe haslo';
+      error.value = 'Invalid password';
     } else {
-      error.value = 'Blad polaczenia z serwerem';
+      error.value = 'Connection error';
     }
   } finally {
     loading.value = false;

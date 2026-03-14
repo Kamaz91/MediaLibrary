@@ -46,7 +46,12 @@ export async function getFileContent(filePath: string): Promise<{ content: strin
 
 export function getRawUrl(filePath: string): string {
   if (!_serveFilesLocally && _cdnUrl) return `${_cdnUrl}${filePath}`;
-  return `/api/files/raw?path=${encodeURIComponent(filePath)}`;
+  const base = `/api/files/raw?path=${encodeURIComponent(filePath)}`;
+  if (_serveFilesLocally) {
+    const userStore = useUserStore();
+    return `${base}&pass=${encodeURIComponent(userStore.password)}`;
+  }
+  return base;
 }
 
 export async function fetchAuthBlob(filePath: string): Promise<string> {
@@ -54,7 +59,11 @@ export async function fetchAuthBlob(filePath: string): Promise<string> {
     // CDN is public – return direct URL, no auth headers needed
     return `${_cdnUrl}${filePath}`;
   }
-  // Serve through API with auth (serveFilesLocally mode or no CDN configured)
+  if (_serveFilesLocally) {
+    // Password is embedded in URL – return directly, no blob needed
+    return getRawUrl(filePath);
+  }
+  // Fallback: fetch with auth header and create blob URL
   const userStore = useUserStore();
   const res = await fetch(`/api/files/raw?path=${encodeURIComponent(filePath)}`, {
     headers: { 'x-password': userStore.password },

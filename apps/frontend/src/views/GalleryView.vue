@@ -7,15 +7,15 @@
       </div>
       <div class="header-right">
         <span class="server-path">{{ serverPathDisplay }}</span>
-        <button @click="layoutStore.setMode('grid')" :class="['layout-btn', { active: layoutStore.mode === 'grid' }]" title="Siatka">&#9707;</button>
-        <button @click="layoutStore.setMode('list')" :class="['layout-btn', { active: layoutStore.mode === 'list' }]" title="Lista">&#9776;</button>
-        <button @click="logout" class="logout-btn">Wyloguj</button>
+        <button @click="layoutStore.setMode('grid')" :class="['layout-btn', { active: layoutStore.mode === 'grid' }]" title="Grid">&#9707;</button>
+        <button @click="layoutStore.setMode('list')" :class="['layout-btn', { active: layoutStore.mode === 'list' }]" title="List">&#9776;</button>
+        <button @click="logout" class="logout-btn">Log out</button>
       </div>
     </header>
     <div class="action-bar">
-      <button @click="showNewFolder = true" class="action-btn">+ Nowy folder</button>
+      <button @click="showNewFolder = true" class="action-btn">+ New folder</button>
       <label class="action-btn upload-label">
-        + Dodaj pliki
+        + Add files
         <input type="file" multiple @change="handleFileInput" style="display:none" />
       </label>
       <div v-if="galleryStore.error" class="error-banner">{{ galleryStore.error }}</div>
@@ -32,11 +32,11 @@
       <div v-if="isDragOver" class="drop-overlay">
         <div class="drop-overlay-inner">
           <span class="drop-icon">&#9650;</span>
-          <span>Upusc pliki tutaj</span>
+          <span>Drop files here</span>
         </div>
       </div>
-      <div v-if="galleryStore.loading" class="loading">Ladowanie...</div>
-      <div v-else-if="galleryStore.items.length === 0" class="empty">Brak plikow w tym folderze</div>
+      <div v-if="galleryStore.loading" class="loading">Loading...</div>
+      <div v-else-if="galleryStore.items.length === 0" class="empty">No files in this folder</div>
       <template v-else>
         <FileGrid
           v-if="layoutStore.mode === 'grid'"

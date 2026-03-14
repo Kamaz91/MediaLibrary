@@ -21,8 +21,14 @@
       </div>
       <div class="file-actions">
         <button @click.stop="emit('show-exif', item)" v-if="isImage(item.name)" title="EXIF" class="btn-icon">i</button>
-        <button @click.stop="emit('rename', item)" title="Zmien nazwe" class="btn-icon">&#9998;</button>
-        <button @click.stop="emit('delete', item)" title="Usun" class="btn-icon btn-danger">&#128465;</button>
+        <button
+          @click.stop="copyLink(item)"
+          v-if="!item.isDirectory"
+          :title="copiedPath === item.path ? 'Copied!' : 'Copy link'"
+          :class="['btn-icon', { 'btn-copied': copiedPath === item.path }]"
+        >{{ copiedPath === item.path ? '&#10003;' : '&#128279;' }}</button>
+        <button @click.stop="emit('rename', item)" title="Rename" class="btn-icon">&#9998;</button>
+        <button @click.stop="emit('delete', item)" title="Delete" class="btn-icon btn-danger">&#128465;</button>
       </div>
     </div>
   </div>
@@ -31,6 +37,8 @@
 <script setup lang="ts">
 import type { FileItem } from '@/types';
 import AuthImg from '@/components/AuthImg.vue';
+import { getRawUrl } from '@/api/fileApi';
+import { ref } from 'vue';
 
 const props = defineProps<{ items: FileItem[]; serverUrl: string }>();
 const emit = defineEmits<{
@@ -69,6 +77,16 @@ function handleClick(item: FileItem) {
   } else if (isText(item.name)) {
     emit('open-text', item);
   }
+}
+
+const copiedPath = ref<string | null>(null);
+
+function copyLink(item: FileItem) {
+  const url = getRawUrl(item.path);
+  const absolute = url.startsWith('http') ? url : `${window.location.origin}${url}`;
+  navigator.clipboard.writeText(absolute);
+  copiedPath.value = item.path;
+  setTimeout(() => { copiedPath.value = null; }, 2000);
 }
 </script>
 
@@ -161,5 +179,10 @@ function handleClick(item: FileItem) {
 .btn-danger:hover {
   background: rgba(233,69,96,0.3);
   color: #e94560;
+}
+.btn-copied {
+  background: rgba(34,197,94,0.25) !important;
+  color: #22c55e !important;
+  border-color: rgba(34,197,94,0.4);
 }
 </style>

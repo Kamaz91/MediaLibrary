@@ -6,7 +6,7 @@
         <button @click="emit('close')" class="close-btn">&#x2715;</button>
       </div>
       <div class="tv-body">
-        <div v-if="loading" class="tv-loading">Ladowanie...</div>
+        <div v-if="loading" class="tv-loading">Loading...</div>
         <div v-else-if="error" class="tv-error">{{ error }}</div>
         <pre v-else class="tv-content"><code>{{ content }}</code></pre>
       </div>
@@ -31,7 +31,7 @@ onMounted(async () => {
     const data = await getFileContent(props.file.path);
     content.value = data.content;
   } catch {
-    error.value = 'Nie mozna zaladowac pliku';
+    error.value = 'Failed to load file';
   } finally {
     loading.value = false;
   }

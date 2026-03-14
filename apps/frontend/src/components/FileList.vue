@@ -1,10 +1,10 @@
 <template>
   <div class="file-list">
     <div class="list-header">
-      <span class="col-name">Nazwa</span>
-      <span class="col-size">Rozmiar</span>
-      <span class="col-date">Data modyfikacji</span>
-      <span class="col-actions">Akcje</span>
+      <span class="col-name">Name</span>
+      <span class="col-size">Size</span>
+      <span class="col-date">Modified</span>
+      <span class="col-actions">Actions</span>
     </div>
     <div
       v-for="item in items"
@@ -20,8 +20,14 @@
       <span class="col-date">{{ formatDate(item.modifiedAt) }}</span>
       <span class="col-actions" @click.stop>
         <button v-if="isImage(item.name)" @click="emit('show-exif', item)" title="EXIF" class="btn-icon">i</button>
-        <button @click="emit('rename', item)" title="Zmien nazwe" class="btn-icon">&#9998;</button>
-        <button @click="emit('delete', item)" title="Usun" class="btn-icon btn-danger">&#128465;</button>
+        <button
+          v-if="!item.isDirectory"
+          @click="copyLink(item)"
+          :title="copiedPath === item.path ? 'Copied!' : 'Copy link'"
+          :class="['btn-icon', { 'btn-copied': copiedPath === item.path }]"
+        >{{ copiedPath === item.path ? '&#10003;' : '&#128279;' }}</button>
+        <button @click="emit('rename', item)" title="Rename" class="btn-icon">&#9998;</button>
+        <button @click="emit('delete', item)" title="Delete" class="btn-icon btn-danger">&#128465;</button>
       </span>
     </div>
   </div>
@@ -29,6 +35,8 @@
 
 <script setup lang="ts">
 import type { FileItem } from '@/types';
+import { getRawUrl } from '@/api/fileApi';
+import { ref } from 'vue';
 
 const props = defineProps<{ items: FileItem[]; serverUrl: string }>();
 const emit = defineEmits<{
@@ -55,13 +63,23 @@ function formatSize(size: number | null) {
   return (size / (1024 * 1024)).toFixed(1) + ' MB';
 }
 function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleString('pl-PL');
+  return new Date(dateStr).toLocaleString();
 }
 
 function handleClick(item: FileItem) {
   if (item.isDirectory) emit('open-folder', item.path);
   else if (isImage(item.name)) emit('open-image', item);
   else if (isText(item.name)) emit('open-text', item);
+}
+
+const copiedPath = ref<string | null>(null);
+
+function copyLink(item: FileItem) {
+  const url = getRawUrl(item.path);
+  const absolute = url.startsWith('http') ? url : `${window.location.origin}${url}`;
+  navigator.clipboard.writeText(absolute);
+  copiedPath.value = item.path;
+  setTimeout(() => { copiedPath.value = null; }, 2000);
 }
 </script>
 
@@ -137,4 +155,9 @@ function handleClick(item: FileItem) {
 }
 .btn-icon:hover { background: rgba(255,255,255,0.15); color: white; }
 .btn-danger:hover { background: rgba(233,69,96,0.3); color: #e94560; }
+.btn-copied {
+  background: rgba(34,197,94,0.25) !important;
+  color: #22c55e !important;
+  border-color: rgba(34,197,94,0.4);
+}
 </style>

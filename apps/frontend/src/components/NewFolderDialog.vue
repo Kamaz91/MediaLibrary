@@ -1,12 +1,12 @@
 <template>
   <div class="dialog-overlay" @click.self="emit('close')">
     <div class="dialog">
-      <h3>Nowy folder</h3>
-      <input v-model="name" type="text" placeholder="Nazwa folderu" class="dialog-input" @keyup.enter="submit" autofocus />
+      <h3>New folder</h3>
+      <input v-model="name" type="text" placeholder="Folder name" class="dialog-input" @keyup.enter="submit" autofocus />
       <p v-if="error" class="dialog-error">{{ error }}</p>
       <div class="dialog-actions">
-        <button @click="emit('close')" class="btn-cancel">Anuluj</button>
-        <button @click="submit" class="btn-confirm">Utworz</button>
+        <button @click="emit('close')" class="btn-cancel">Cancel</button>
+        <button @click="submit" class="btn-confirm">Create</button>
       </div>
     </div>
   </div>
@@ -25,8 +25,8 @@ const error = ref('');
 
 function submit() {
   const trimmed = name.value.trim();
-  if (!trimmed) { error.value = 'Podaj nazwe folderu'; return; }
-  if (/[<>:"|?*/\\]/.test(trimmed)) { error.value = 'Nieprawidlowe znaki w nazwie'; return; }
+  if (!trimmed) { error.value = 'Enter folder name'; return; }
+  if (/[<>:"|?*/\\]/.test(trimmed)) { error.value = 'Invalid characters in name'; return; }
   emit('create', trimmed);
 }
 </script>
