@@ -59,7 +59,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage, limits: { fileSize: 200 * 1024 * 1024 } }); // 200 MB
 
 router.post('/', (req: Request, res: Response): void => {
   const uploadId = uuidv4();
