@@ -1,7 +1,7 @@
 <template>
   <div class="login-wrapper">
     <div class="login-card">
-      <h1 class="login-title">Galeria</h1>
+      <h1 class="login-title">MediaLibrary</h1>
       <p class="login-subtitle">Wprowadz haslo aby kontynuowac</p>
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="input-group">

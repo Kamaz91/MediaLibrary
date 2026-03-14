@@ -1,5 +1,5 @@
 {
-  "name": "galeria-monorepo",
+  "name": "medialibrary-monorepo",
   "private": true,
   "workspaces": [
     "apps/*"

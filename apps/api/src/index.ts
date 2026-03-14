@@ -38,6 +38,6 @@ app.get('/api/info', (_req, res) => {
 });
 
 app.listen(config.port, () => {
-  console.log(`Galeria API running on port ${config.port}`);
+  console.log(`MediaLibrary API running on port ${config.port}`);
   console.log(`Root path: ${config.rootPath}`);
 });

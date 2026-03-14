@@ -8,7 +8,7 @@ const deployPath = args[0];
 
 if (!deployPath) {
   console.error('Usage: node scripts/deploy-frontend.js <deploy-path>');
-  console.error('Example: node scripts/deploy-frontend.js /var/www/html/galeria');
+  console.error('Example: node scripts/deploy-frontend.js /var/www/html/medialibrary');
   process.exit(1);
 }
 

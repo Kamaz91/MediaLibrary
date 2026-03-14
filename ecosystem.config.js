@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'galeria-api',
+      name: 'medialibrary-api',
       script: 'apps/api/build/index.js',
       cwd: __dirname,
       instances: 1,

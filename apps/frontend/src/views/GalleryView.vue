@@ -2,7 +2,7 @@
   <div class="gallery-layout">
     <header class="gallery-header">
       <div class="header-left">
-        <span class="logo">Galeria</span>
+        <span class="logo">MediaLibrary</span>
         <Breadcrumb :path="galleryStore.currentPath" @navigate="navigateTo" />
       </div>
       <div class="header-right">
