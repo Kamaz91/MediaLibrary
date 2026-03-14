@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import type { FileItem } from '@/types';
-import { fetchAuthBlob } from '@/api/fileApi';
+import { getExif } from '@/api/fileApi';
 
 const props = defineProps<{ file: FileItem }>();
 const emit = defineEmits<{ (e: 'close'): void }>();
@@ -58,14 +58,8 @@ function formatValue(v: unknown): string {
 
 onMounted(async () => {
   try {
-    const objectUrl = await fetchAuthBlob(props.file.path);
-    const response = await fetch(objectUrl);
-    const blob = await response.blob();
-    URL.revokeObjectURL(objectUrl);
-    const { default: exifr } = await import('exifr');
-    const data = await exifr.parse(blob, { tiff: true, exif: true, gps: true, iptc: true });
-    exifData.value = data || {};
-  } catch (e) {
+    exifData.value = await getExif(props.file.path);
+  } catch {
     error.value = 'Failed to read EXIF data';
   } finally {
     loading.value = false;

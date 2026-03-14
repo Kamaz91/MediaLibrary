@@ -4,6 +4,8 @@ import fs from 'fs';
 import http from 'http';
 import https from 'https';
 import { config } from '../config';
+// exifr is a pure-ESM package; use dynamic import
+const exifrPromise = import('exifr');
 
 const router = Router();
 
@@ -188,6 +190,30 @@ router.get('/raw', (req: Request, res: Response): void => {
     return;
   }
   res.sendFile(fullPath);
+});
+
+router.get('/exif', async (req: Request, res: Response): Promise<void> => {
+  const reqPath = req.query.path as string;
+  if (!reqPath) {
+    res.status(400).json({ error: 'path is required' });
+    return;
+  }
+  const fullPath = resolveSafe(reqPath);
+  if (!fullPath) {
+    res.status(400).json({ error: 'Invalid path' });
+    return;
+  }
+  if (!fs.existsSync(fullPath)) {
+    res.status(404).json({ error: 'Not found' });
+    return;
+  }
+  try {
+    const { default: exifr } = await exifrPromise;
+    const data = await exifr.parse(fullPath, { tiff: true, exif: true, gps: true, iptc: true });
+    res.json(data ?? {});
+  } catch {
+    res.status(422).json({ error: 'Failed to read EXIF data' });
+  }
 });
 
 export default router;

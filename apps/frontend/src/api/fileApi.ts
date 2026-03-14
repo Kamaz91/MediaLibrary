@@ -44,6 +44,14 @@ export async function getFileContent(filePath: string): Promise<{ content: strin
   return res.data;
 }
 
+export async function getExif(filePath: string): Promise<Record<string, unknown>> {
+  const res = await axios.get('/api/files/exif', {
+    headers: getHeaders(),
+    params: { path: filePath },
+  });
+  return res.data;
+}
+
 export function getRawUrl(filePath: string): string {
   if (!_serveFilesLocally && _cdnUrl) return `${_cdnUrl}${filePath}`;
   const base = `/api/files/raw?path=${encodeURIComponent(filePath)}`;
